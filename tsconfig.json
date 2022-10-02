@@ -18,6 +18,8 @@
     "baseUrl": "./",
     "paths": {
       "@~types/*": ["src/@types/*"],
+
+      "@styles/*": ["src/styles/*"],
     }
   },
   "include": ["src"],
