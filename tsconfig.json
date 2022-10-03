@@ -23,6 +23,7 @@
       "@styles/*": ["src/styles/*"],
 
       "@hooks/*": ["src/hooks/*"],
+      "@components/*": ["src/components/*"],
     }
   },
   "include": ["src"],
