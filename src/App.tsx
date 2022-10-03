@@ -1,10 +1,16 @@
 import { PureDate } from '@lib/PureDate';
 
+import { useEffect } from 'react';
+import type { UseToastOptions } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import useWeekNames from '@hooks/useWeekNames';
 import useCalendar from '@hooks/useCalendar';
+import useReminderList from '@hooks/useReminderList';
 
 import type { SystemStyleObject } from '@chakra-ui/react';
-import { Grid, Table, Thead, Tbody, Td, Tr, Th } from '@chakra-ui/react';
+import { Text, Grid, Table, Thead, Tbody, Tr, Th } from '@chakra-ui/react';
+
+import CalendarCell from '@components/CalendarCell';
 
 export default App;
 
@@ -15,10 +21,42 @@ function App() {
    const {
       calendar,
       today,
+      firstDateInCalendar,
+      lastDateInCalendar,
       getCalendarDate,
       getIsCertainDate,
       getIsInCurrentMonthRange,
    } = useCalendar(FIRST_DAY, new PureDate());
+
+   const toast = useToast();
+   const { isFetching, error, reminders } = useReminderList({
+      startsAt: firstDateInCalendar.time,
+      endsAt: lastDateInCalendar.time,
+   });
+
+   // ***
+
+   useEffect(() => {
+      const TOAST_ID = 'toast-error-calendar';
+
+      if (isFetching) return;
+      if (error === null) return;
+
+      const showUniqueToast = toast.isActive(TOAST_ID)
+         ? (options: UseToastOptions) => toast.update(TOAST_ID, options)
+         : toast;
+
+      showUniqueToast({
+         id: TOAST_ID,
+         position: 'top-right',
+         duration: 2000,
+         description: error.message,
+         status: 'error',
+      });
+      return;
+   }, [error, isFetching]);
+
+   // ***
 
    const calendarWeek = calendar.reduce((acc, cur, i) => {
       const arrayIndex = Math.floor(i / 7);
@@ -34,6 +72,20 @@ function App() {
       return acc;
    }, [] as { date: PureDate; day: string | number }[][]);
 
+   if (isFetching) {
+      return (
+         <Text
+            w='100vw'
+            h='100vh'
+            display='grid'
+            fontSize='6rem'
+            placeItems='center'
+         >
+            Loading..
+         </Text>
+      );
+   }
+
    return (
       <Grid as='main'>
          <Table sx={tableCSS}>
@@ -48,13 +100,20 @@ function App() {
                {calendarWeek.map((week, i) => (
                   <Tr key={`week-${i}`} aria-rowindex={i + 2}>
                      {week.map(({ day, date }) => (
-                        <Td
+                        <CalendarCell
                            key={day}
+                           date={date}
+                           initialReminders={reminders.filter((reminder) =>
+                              getIsCertainDate(
+                                 new PureDate(reminder.date),
+                                 date,
+                              ),
+                           )}
                            data-is-today={getIsCertainDate(date, today)}
                            data-in-range={getIsInCurrentMonthRange(date)}
                         >
                            {day}
-                        </Td>
+                        </CalendarCell>
                      ))}
                   </Tr>
                ))}
