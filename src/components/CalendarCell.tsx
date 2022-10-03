@@ -1,10 +1,12 @@
 import { PureDate } from '@lib/PureDate';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useDisclosure } from '@chakra-ui/react';
 import type { APIResponse } from '@hooks/useReminder';
 
 import type { TableCellProps } from '@chakra-ui/react';
 import { Grid, Td, Button } from '@chakra-ui/react';
+import ReminderFormModal from '@components/ReminderFormModal';
 import Reminder from '@components/Reminder';
 
 export default CalendarCell;
@@ -24,6 +26,15 @@ function CalendarCell({
    ...props
 }: CalendarCellProps) {
    const [reminders, setReminders] = useState<Reminder[]>(initialReminders);
+   const {
+      isOpen, //
+      onOpen: handleOpen,
+      onClose: handleClose,
+   } = useDisclosure();
+
+   const handleAddReminder = useCallback((data: APIResponse) => {
+      setReminders((oldState) => oldState.concat(data));
+   }, []);
 
    return (
       <Td pos='relative' {...props}>
@@ -36,10 +47,19 @@ function CalendarCell({
             bgColor='transparent'
             display='flex'
             alignItems='flex-start'
+            onClick={handleOpen}
             aria-label='Add reminder'
          >
             {children}
          </Button>
+
+         <ReminderFormModal
+            date={date}
+            isOpen={isOpen}
+            onOpen={handleOpen}
+            onClose={handleClose}
+            onAddReminder={handleAddReminder}
+         />
 
          <Grid //
             w='100%'
