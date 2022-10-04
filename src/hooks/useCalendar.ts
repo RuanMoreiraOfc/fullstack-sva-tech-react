@@ -10,7 +10,7 @@ function useCalendar(daysSinceLastSunday: number, from: PureDate) {
   const lastDateOfMonth = today.lastDateOfMonth;
 
   const firstDateInCalendar = firstDateOfMonth.setHours(
-    -24 * (firstDateOfMonth.day + daysSinceLastSunday),
+    -24 * (firstDateOfMonth.day - daysSinceLastSunday),
   );
   const lastDateInCalendar = firstDateInCalendar.setHours(24 * 35, 0, 0, 0);
 

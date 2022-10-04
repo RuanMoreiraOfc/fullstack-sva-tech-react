@@ -5,7 +5,7 @@ export default useWeekNames;
 function useWeekNames(daysSinceLastSunday: number) {
   const INITIAL_SUNDAY_DATE_FROM_ZERO_DATE = -3;
 
-  const initialDay = INITIAL_SUNDAY_DATE_FROM_ZERO_DATE - daysSinceLastSunday;
+  const initialDay = INITIAL_SUNDAY_DATE_FROM_ZERO_DATE + daysSinceLastSunday;
 
   const firstDayOfWeek = new PureDate(0).setHours(24 * initialDay, 0, 0, 0);
 
